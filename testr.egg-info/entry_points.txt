@@ -1,0 +1,2 @@
+[console_scripts]
+testr = testr.cli:main

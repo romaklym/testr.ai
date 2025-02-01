@@ -1,0 +1,9 @@
+pyautogui
+opencv-python
+easyocr
+pillow
+numpy
+psutil
+
+[:platform_system == "Windows"]
+pywin32

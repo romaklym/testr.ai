@@ -1,0 +1,11 @@
+Metadata-Version: 2.2
+Name: testr
+Version: 0.1
+Requires-Dist: pyautogui
+Requires-Dist: opencv-python
+Requires-Dist: easyocr
+Requires-Dist: pillow
+Requires-Dist: numpy
+Requires-Dist: psutil
+Requires-Dist: pywin32; platform_system == "Windows"
+Dynamic: requires-dist
