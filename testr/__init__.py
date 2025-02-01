@@ -1,12 +1,15 @@
 # testr/__init__.py
 import time
 from .utils import CrossPlatformUtils
+from .exceptions import ElementNotFoundError
 from .app_controller import AppController
 from .input_simulator import InputSimulator
 from .screen_analyzer import ScreenAnalyzer
+from .logger import log_action, TestLogger
 
 class Testr:
-    def __init__(self):
+    def __init__(self, log_dir="logs"):
+        self.logger = TestLogger(log_dir)
         print("\n=== Initializing Testr Framework ===")
         self.app = AppController(self)
         print(" AppController initialized")

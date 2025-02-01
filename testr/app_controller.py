@@ -5,12 +5,14 @@ import os
 import winreg
 from pathlib import Path
 from .exceptions import ApplicationLaunchError
+from .logger import log_action
 
 class AppController:
     def __init__(self, parent):
         self.parent = parent
         print("AppController initialized")
 
+    @log_action
     def find_executable_path(self, app_name):
         """Find the executable path for an application on Windows
         
@@ -78,6 +80,7 @@ class AppController:
 
         return None
 
+    @log_action
     def launch_app(self, app_name_or_path, as_admin=False):
         """Launch application by name or path
         
@@ -123,6 +126,7 @@ class AppController:
             print(f"ERROR launching app: {str(e)}")
             raise ApplicationLaunchError(f"Failed to launch app: {str(e)}")
 
+    @log_action
     def close_app(self, app_name):
         """Close application by process name"""
         try:

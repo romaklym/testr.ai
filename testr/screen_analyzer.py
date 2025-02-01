@@ -9,6 +9,7 @@ import win32api
 import win32con
 from datetime import datetime
 from .exceptions import ElementNotFoundError
+from .logger import log_action
 
 class ScreenAnalyzer:
     def __init__(self, parent):
@@ -19,10 +20,12 @@ class ScreenAnalyzer:
         self.assets_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets')
         os.makedirs(self.assets_dir, exist_ok=True)
 
+    @log_action
     def normalize_text(self, text):
         """Normalize text by removing spaces and converting to lowercase"""
         return ''.join(text.lower().split())
 
+    @log_action
     def save_screenshot_with_highlight(self, screenshot, bbox, text):
         """Save screenshot with highlighted text area"""
         # Convert PIL image to OpenCV format
@@ -55,6 +58,7 @@ class ScreenAnalyzer:
         cv2.imwrite(filepath, cv_image)
         print(f"Screenshot saved: {filepath}")
 
+    @log_action
     def save_screenshot_with_color_highlight(self, screenshot, x, y, hex_color, radius=20):
         """Save screenshot with highlighted color match area
         
@@ -92,6 +96,7 @@ class ScreenAnalyzer:
         cv2.imwrite(filepath, cv_image)
         print(f"Screenshot saved: {filepath}")
 
+    @log_action
     def get_region_screenshot(self, region=None):
         """Take a screenshot of the specified region or full screen
         
@@ -104,6 +109,7 @@ class ScreenAnalyzer:
             x, y, width, height = region
             return pyautogui.screenshot(region=(x, y, width, height))
 
+    @log_action
     def find_color_position(self, hex_color, tolerance=5, max_retries=3, retry_delay=1, region=None):
         """Find position of a specific color on screen or in region
         
@@ -162,16 +168,25 @@ class ScreenAnalyzer:
         
         raise ElementNotFoundError(f"Color {hex_color} not found after {max_retries} attempts")
 
+    @log_action
     def find_template_position(self, template_path, confidence=0.8, max_retries=3, retry_delay=1, region=None):
         """Find position of a template image on screen or in region
         
         Args:
-            template_path: Path to template image file
+            template_path: Path to template image file (relative to images folder or absolute path)
             confidence: Matching confidence threshold (0-1)
             max_retries: Maximum retry attempts
             retry_delay: Delay between retries in seconds
             region: Tuple of (x, y, width, height) to search within, or None for full screen
         """
+        # Handle template path - check if absolute or relative to images folder
+        if not os.path.isabs(template_path):
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            template_path = os.path.join(base_dir, 'images', template_path)
+            
+        if not os.path.exists(template_path):
+            raise FileNotFoundError(f"Template image not found at: {template_path}")
+            
         region_offset_x = int(region[0]) if region else 0
         region_offset_y = int(region[1]) if region else 0
         
@@ -216,6 +231,7 @@ class ScreenAnalyzer:
         
         raise ElementNotFoundError(f"Template {template_path} not found after {max_retries} attempts")
 
+    @log_action
     def find_text_position(self, text, min_confidence=0.4, exact_match=False, max_retries=3, retry_delay=1, region=None):
         """Find text position using OCR"""
         region_offset_x = int(region[0]) if region else 0
@@ -267,11 +283,14 @@ class ScreenAnalyzer:
         
         raise ElementNotFoundError(f"Text {text} not found after {max_retries} attempts")
 
+    @log_action
     def hex_to_rgb(self, hex_color):
         """Convert hex color to RGB"""
         hex_color = hex_color.lstrip('#')
         return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
 
+
+    @log_action
     def click_position(self, x, y):
         """Click at specific coordinates using Win32 API"""
         # Convert numpy floats to integers
@@ -287,6 +306,7 @@ class ScreenAnalyzer:
         time.sleep(0.1)
         win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x, y, 0, 0)
 
+    @log_action
     def move_to_position(self, x, y):
         """Move mouse to specific coordinates"""
         x = int(round(float(x)))
@@ -295,6 +315,7 @@ class ScreenAnalyzer:
         time.sleep(0.5)  # Small delay to ensure movement is complete
         return self.parent
 
+    @log_action
     def move_to_position_and_click(self, x, y):
         """Move mouse to specific coordinates and click"""
         x = int(round(float(x)))
@@ -303,6 +324,7 @@ class ScreenAnalyzer:
         self.click_position(x, y)
         return self.parent
 
+    @log_action
     def find_text_position_and_click(self, text, min_confidence=0.4, exact_match=False, max_retries=3, retry_delay=1, region=None):
         """Find text using OCR and click on it
         
@@ -325,6 +347,7 @@ class ScreenAnalyzer:
                 raise
         return self.parent
 
+    @log_action
     def find_color_position_and_click(self, hex_color, tolerance=5, max_retries=3, retry_delay=1, region=None):
         """Find and click on a specific color on screen or in region
         
@@ -346,6 +369,7 @@ class ScreenAnalyzer:
                 raise
         return self.parent
 
+    @log_action
     def drag_to_position(self, start_x, start_y, end_x, end_y, duration=0.5):
         """Click and drag from start position to end position
         
@@ -363,6 +387,7 @@ class ScreenAnalyzer:
         time.sleep(2)  # Built-in wait
         return self.parent
 
+    @log_action
     def double_click_position(self, x, y):
         """Move to position and double click"""
         pyautogui.moveTo(x, y)
@@ -370,6 +395,7 @@ class ScreenAnalyzer:
         time.sleep(2)  # Built-in wait
         return self.parent
 
+    @log_action
     def right_click_position(self, x, y):
         """Move to position and right click"""
         pyautogui.moveTo(x, y)

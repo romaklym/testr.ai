@@ -6,21 +6,19 @@ import os
 automator = Testr()
 
 # Get the executable name from the full path
-app_path = "C:/Program Files (x86)/Ubisoft/Ubisoft Game Launcher/UbisoftConnect.exe"
-app_name = os.path.basename(app_path)
+# app_path = "C:/Program Files (x86)/Ubisoft/Ubisoft Game Launcher/UbisoftConnect.exe"
+app_name = "chrome.exe"
 
 try:
     (
         automator.chain()
-            .app.launch_app(app_path, as_admin=True)
-            .wait(30)
-            .screen.find_text_position_and_click("Library", max_retries=3, retry_delay=2)
-            .screen.find_text_position_and_click("Tom Clancy", max_retries=3, retry_delay=2)
-            .screen.find_color_position_and_click("#006EF5", max_retries=3, retry_delay=2)
-            # .screen.find_text_position_and_click("Play", max_retries=3, retry_delay=2)
-            .wait(200)
-            .screen.find_text_position_and_click("Operators", max_retries=3, retry_delay=2)
-            .screen.find_text_position_and_click("Defenders", max_retries=3, retry_delay=2)
+            .app.launch_app(app_name, as_admin=False)
+            .wait(5)
+            .screen.find_text_position_and_click("Search", max_retries=3, retry_delay=2)
+            .input.type("facebook.com")
+            .input.press("enter")
+            .screen.find_template_position("x.png", max_retries=3, retry_delay=2)
+            .wait(5)
 
     )
 except ElementNotFoundError as e:
